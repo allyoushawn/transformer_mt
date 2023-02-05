@@ -1,4 +1,5 @@
 src_lang: "en"
 tgt_lang: "fr"
 dataset_prefix: "datasets/en_fr"
+model_output_path: "results/model.pt"
 

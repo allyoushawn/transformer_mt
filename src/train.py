@@ -11,6 +11,7 @@ with open('src/config/config.yaml') as f:
 src_lang = config['src_lang']
 tgt_lang = config['tgt_lang']
 datasets_prefix = config['dataset_prefix']
+model_output_path = config['model_output_path']
 
 with open('src/config/spacy_model_config.yaml') as f:
     spacy_model_config = yaml.load(f, Loader=yaml.FullLoader)
@@ -105,7 +106,6 @@ import numpy as np
 model_parameters = filter(lambda p: p.requires_grad, model.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
 print('# parameters: {:e}'.format(params))
-
 criterion = torch.nn.CrossEntropyLoss(ignore_index=1)
 optimizer = torch.optim.Adam(model.parameters())
 model.train()
@@ -183,5 +183,6 @@ while step < 100000:
                 scores.append(sentence_bleu([sent_ref], sent))
             print(' '.join(sent))
             print('Average BLEU: {:.4f}'.format(sum(scores) / len(scores)))
+            torch.save(model.state_dict(), model_output_path)
             model.train()
 
