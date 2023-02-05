@@ -3,23 +3,23 @@ from torchtext.legacy.data import Field
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import jieba
+import yaml
 
 
 # The script is based on https://towardsdatascience.com/how-to-use-torchtext-for-neural-machine-translation-plus-hack-to-make-it-5x-faster-77f3884d95
-# Config
-src_lang = "en"
-tgt_lang = "fr"
-datasets_prefix = 'datasets/en_fr'
 
-spacy_model_name_dict = {
-    'en': 'en_core_web_sm',
-    'fr': 'fr_core_news_sm',
-    'zh': 'zh_core_web_sm'
-}
+with open('src/config/spacy_model_config.yaml') as f:
+    spacy_model_config = yaml.load(f, Loader=yaml.FullLoader)
+
+with open('src/config/config.yaml') as f:
+    config = yaml.load(f, Loader=yaml.FullLoader)
+src_lang = config['src_lang']
+tgt_lang = config['tgt_lang']
+datasets_prefix = config['dataset_prefix']
+
 
 src_sent_list = open(f'{datasets_prefix}/{src_lang}.txt', encoding='utf-8').read().split('\n')
 tgt_sent_list = open(f'{datasets_prefix}/{tgt_lang}.txt', encoding='utf-8').read().split('\n')
-
 
 def perform_word_segmentation_for_zh(sent_list):
     new_sent_list = []
@@ -34,8 +34,8 @@ if tgt_lang == 'zh':
     tgt_sent_list = perform_word_segmentation_for_zh(tgt_sent_list)
 
 
-spacy_src = spacy.load(spacy_model_name_dict[src_lang])
-spacy_tgt = spacy.load(spacy_model_name_dict[tgt_lang])
+spacy_src = spacy.load(spacy_model_config[src_lang])
+spacy_tgt = spacy.load(spacy_model_config[tgt_lang])
 
 
 def tokenize_src(sentence):
@@ -60,5 +60,5 @@ df = df.query(f'tgt_len < src_len * 1.5 & tgt_len * 1.5 > src_len')
 
 # create train and validation set
 train, val = train_test_split(df, test_size=0.1)
-train.to_csv("datasets/train.csv", index=False)
-val.to_csv("datasets/val.csv", index=False)
+train.to_csv(f"{datasets_prefix}/train.csv", index=False)
+val.to_csv(f"{datasets_prefix}/val.csv", index=False)

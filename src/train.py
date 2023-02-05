@@ -2,20 +2,21 @@ import spacy
 from nltk.translate.bleu_score import sentence_bleu
 from torchtext.legacy.data import Field, TabularDataset
 from torchtext.legacy import data
+import yaml
 # The script is based on https://towardsdatascience.com/how-to-use-torchtext-for-neural-machine-translation-plus-hack-to-make-it-5x-faster-77f3884d95
 
 
-src_lang = "en"
-tgt_lang = "fr"
+with open('src/config/config.yaml') as f:
+    config = yaml.load(f, Loader=yaml.FullLoader)
+src_lang = config['src_lang']
+tgt_lang = config['tgt_lang']
+datasets_prefix = config['dataset_prefix']
 
-spacy_model_name_dict = {
-    'en': 'en_core_web_sm',
-    'fr': 'fr_core_news_sm',
-    'zh': 'zh_core_web_sm'
-}
+with open('src/config/spacy_model_config.yaml') as f:
+    spacy_model_config = yaml.load(f, Loader=yaml.FullLoader)
 
-spacy_src = spacy.load(spacy_model_name_dict[src_lang])
-spacy_tgt = spacy.load(spacy_model_name_dict[tgt_lang])
+spacy_src = spacy.load(spacy_model_config[src_lang])
+spacy_tgt = spacy.load(spacy_model_config[tgt_lang])
 
 def tokenize_src(sentence):
     return [tok.text for tok in spacy_src.tokenizer(sentence)]
@@ -30,7 +31,7 @@ TGT_TEXT = Field(tokenize=tokenize_tgt, init_token ='<sos>', eos_token ='<eos>')
 
 # associate the text in the $src_lang_name column with the SRC_TEXT field, # and $tgt_lang_name with TGT_TEXT
 data_fields = [('SRC', SRC_TEXT), ('TGT', TGT_TEXT)]
-train,val = TabularDataset.splits(path='datasets', train='train.csv', validation='val.csv', format='csv', fields=data_fields)
+train,val = TabularDataset.splits(path=datasets_prefix, train='train.csv', validation='val.csv', format='csv', fields=data_fields)
 
 TGT_TEXT.build_vocab(train, val)
 SRC_TEXT.build_vocab(train, val)

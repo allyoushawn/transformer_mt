@@ -1,0 +1,4 @@
+src_lang: "en"
+tgt_lang: "fr"
+dataset_prefix: "datasets/en_fr"
+
