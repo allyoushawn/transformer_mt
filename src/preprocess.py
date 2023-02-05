@@ -8,8 +8,8 @@ import jieba
 # The script is based on https://towardsdatascience.com/how-to-use-torchtext-for-neural-machine-translation-plus-hack-to-make-it-5x-faster-77f3884d95
 # Config
 src_lang = "en"
-tgt_lang = "zh"
-datasets_prefix = 'datasets/en_zh'
+tgt_lang = "fr"
+datasets_prefix = 'datasets/en_fr'
 
 spacy_model_name_dict = {
     'en': 'en_core_web_sm',

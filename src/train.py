@@ -6,7 +6,7 @@ from torchtext.legacy import data
 
 
 src_lang = "en"
-tgt_lang = "zh"
+tgt_lang = "fr"
 
 spacy_model_name_dict = {
     'en': 'en_core_web_sm',
@@ -91,8 +91,8 @@ nhid = 200 # the dimension of the feedforward network model in nn.TransformerEnc
 nlayers = 2 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 2 # the number of heads in the multiheadattention models
 dropout = 0.2 # the dropout value
-from transformer import TransformerModel
-from lstm_seq2seq import Seq2Seq
+from model.transformer import TransformerModel
+from model.lstm_seq2seq import Seq2Seq
 
 model_type = 'Transformer' # LSTM or Transformer
 if model_type == 'LSTM':
