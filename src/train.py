@@ -3,6 +3,10 @@ from nltk.translate.bleu_score import sentence_bleu
 from torchtext.legacy.data import Field, TabularDataset
 from torchtext.legacy import data
 import yaml
+from model.transformer import TransformerModel
+from model.lstm_seq2seq import Seq2Seq
+import torch
+import numpy as np
 # The script is based on https://towardsdatascience.com/how-to-use-torchtext-for-neural-machine-translation-plus-hack-to-make-it-5x-faster-77f3884d95
 
 
@@ -12,6 +16,7 @@ src_lang = config['src_lang']
 tgt_lang = config['tgt_lang']
 datasets_prefix = config['dataset_prefix']
 model_output_path = config['model_output_path']
+model_type = config['model_type']
 
 with open('src/config/spacy_model_config.yaml') as f:
     spacy_model_config = yaml.load(f, Loader=yaml.FullLoader)
@@ -52,6 +57,7 @@ def batch_size_fn(new, count, sofar):
     tgt_elements = count * max_tgt_in_batch
     return max(src_elements, tgt_elements)
 
+
 class MyIterator(data.Iterator):
     def create_batches(self):
         if self.train:
@@ -70,7 +76,7 @@ class MyIterator(data.Iterator):
                                           self.batch_size_fn):
                 self.batches.append(sorted(b, key=self.sort_key))
 
-import torch
+
 if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
@@ -85,7 +91,6 @@ train_iter = MyIterator(train, batch_size=tokens_per_batch, device=device,
                         shuffle=True)
 
 
-
 src_ntokens = len(SRC_TEXT.vocab.stoi) # the size of vocabulary
 tgt_ntokens = len(TGT_TEXT.vocab.stoi) # the size of vocabulary
 emsize = 200 # embedding dimension
@@ -93,16 +98,12 @@ nhid = 200 # the dimension of the feedforward network model in nn.TransformerEnc
 nlayers = 2 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 2 # the number of heads in the multiheadattention models
 dropout = 0.2 # the dropout value
-from model.transformer import TransformerModel
-from model.lstm_seq2seq import Seq2Seq
 
-model_type = 'Transformer' # LSTM or Transformer
 if model_type == 'LSTM':
     model = Seq2Seq(src_ntokens, tgt_ntokens, emsize, nhid, device).to(device)
 else:
     model = TransformerModel(src_ntokens, tgt_ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
 
-import numpy as np
 model_parameters = filter(lambda p: p.requires_grad, model.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
 print('# parameters: {:e}'.format(params))

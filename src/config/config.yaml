@@ -3,3 +3,6 @@ tgt_lang: "fr"
 dataset_prefix: "datasets/en_fr"
 model_output_path: "results/model.pt"
 
+# Model related
+model_type: "Transformer" #LSTM or Transformer
+
