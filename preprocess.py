@@ -1,6 +1,5 @@
 import spacy
-import torchtext
-from torchtext.data import Field, BucketIterator, TabularDataset
+from torchtext.legacy.data import Field, BucketIterator, TabularDataset
 import pandas as pd
 from sklearn.model_selection import train_test_split
 

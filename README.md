@@ -5,6 +5,11 @@ The repository is a PyTorch implementation of transformer. We also implement att
 # Set up
 1. Please download the French-English corpus in the [Link](http://www.statmt.org/europarl/)
 2. Unzip the corpus and rename europarl-v7.fr-en.en, europarl-v7.fr-en.fr to en.txt, fr.txt, respectively.
+3. Download the SpaCy models we need for preprocessing.
+```
+python -m spacy download en_core_web_sm
+python -m spacy download fr_core_news_sm
+```
 
 # Run the code
 ```bash run.sh```
