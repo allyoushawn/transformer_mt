@@ -63,7 +63,7 @@ if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
     device = torch.device('cpu')
-tokens_per_batch = 2000
+tokens_per_batch = 1000
 
 
 train_iter = MyIterator(train, batch_size=tokens_per_batch, device=device,
@@ -84,7 +84,7 @@ dropout = 0.2 # the dropout value
 from transformer import TransformerModel
 from lstm_seq2seq import Seq2Seq
 
-model_type = 'LSTM' # LSTM or Transformer
+model_type = 'Transformer' # LSTM or Transformer
 if model_type == 'LSTM':
     model = Seq2Seq(src_ntokens, tgt_ntokens, emsize, nhid, device).to(device)
 else:
