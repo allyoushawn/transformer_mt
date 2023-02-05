@@ -16,3 +16,6 @@ python -m spacy download fr_core_news_sm
 
 # Use different models
 Specify the model_type variable to be Transformer or LSTM.
+
+# Configs
+Python: 3.8.10
