@@ -18,4 +18,7 @@ python -m spacy download fr_core_news_sm
 Specify the model_type variable to be Transformer or LSTM.
 
 # Configs
-Python: 3.8.10
+- Python: 3.8.10
+- torch: 1.9.0
+- torchtext: 0.10.0
+- CUDA: 11.3

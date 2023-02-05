@@ -1,6 +1,6 @@
 import spacy
 
-from torchtext.legacy.data import Field, BucketIterator, TabularDataset
+from torchtext.legacy.data import Field, TabularDataset
 from torchtext.legacy import data
 # The script is based on https://towardsdatascience.com/how-to-use-torchtext-for-neural-machine-translation-plus-hack-to-make-it-5x-faster-77f3884d95
 
@@ -119,7 +119,8 @@ while step < 100000:
             logits = model.train_step(src, src_mask, tgt_for_inp, tgt_mask)
             loss = criterion(logits.view(-1, tgt_ntokens), tgt_for_loss.view(-1))
         else:
-            src_mask = (batch.English == 1.).permute(1, 0).to(device)
+            # Weird bug for RNN. Has to make src_mask to cpu instead of cuda
+            src_mask = (batch.English == 1.).permute(1, 0).to(torch.device('cpu'))
             src_lengths = src.shape[0] - src_mask.int().sum(axis=1)
             loss = model.train_step(src, src_lengths, tgt_for_inp, tgt_for_loss)
 
@@ -143,7 +144,8 @@ while step < 100000:
                     output.append(model.generate(src[:, i:i+1], src_mask[i:i+1]))
                 output = torch.stack(output).squeeze().permute(1, 0)
             else:
-                src_mask = (batch.English == 1.).permute(1, 0).to(device)
+                # Weird bug for RNN. Has to make src_mask to cpu instead of cuda
+                src_mask = (batch.English == 1.).permute(1, 0).to(torch.device('cpu'))
                 src_lengths = src.shape[0] - src_mask.int().sum(axis=1)
                 output = model.generate(src, src_lengths)
 
