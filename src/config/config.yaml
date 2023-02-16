@@ -2,6 +2,9 @@ src_lang: "en"
 tgt_lang: "fr"
 dataset_prefix: "datasets/en_fr"
 model_output_path: "results/model.pt"
+cpu_model_output_path: "results/model.cpu.pt"
+src_vocab_output_path: "results/src.vocab"
+tgt_vocab_output_path: "results/tgt.vocab"
 
 # Model related
 model_type: "Transformer" #LSTM or Transformer

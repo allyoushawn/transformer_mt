@@ -16,7 +16,10 @@ src_lang = config['src_lang']
 tgt_lang = config['tgt_lang']
 datasets_prefix = config['dataset_prefix']
 model_output_path = config['model_output_path']
+cpu_model_output_path = config['cpu_model_output_path']
 model_type = config['model_type']
+src_vocab_output_path = config['src_vocab_output_path']
+tgt_vocab_output_path = config['tgt_vocab_output_path']
 
 with open('src/config/spacy_model_config.yaml') as f:
     spacy_model_config = yaml.load(f, Loader=yaml.FullLoader)
@@ -41,6 +44,9 @@ train,val = TabularDataset.splits(path=datasets_prefix, train='train.csv', valid
 
 TGT_TEXT.build_vocab(train, val)
 SRC_TEXT.build_vocab(train, val)
+
+torch.save(SRC_TEXT.vocab, src_vocab_output_path)
+torch.save(TGT_TEXT.vocab, tgt_vocab_output_path)
 
 max_src_in_batch, max_tgt_in_batch = 100, 100
 
@@ -110,6 +116,42 @@ print('# parameters: {:e}'.format(params))
 criterion = torch.nn.CrossEntropyLoss(ignore_index=1)
 optimizer = torch.optim.Adam(model.parameters())
 model.train()
+
+
+def convert_tensor_to_text(src, output, ref):
+    B, T = output.shape
+    for i in range(B):
+        sent = []
+        for t in range(T):
+            if TGT_TEXT.vocab.itos[output[i][t]] != '<eos>':
+                sent.append(TGT_TEXT.vocab.itos[output[i][t]])
+            else:
+                break
+        sent_ref = []
+        for t in range(len(ref[i])):
+            if TGT_TEXT.vocab.itos[ref[i][t]] != '<pad>':
+                sent_ref.append(TGT_TEXT.vocab.itos[ref[i][t]])
+            else:
+                break
+        # Remove <sos> and <eos>
+        sent_ref = sent_ref[1:-1]
+        break
+
+
+    B, T = src.shape
+    for i in range(B):
+        src_sent = []
+        for t in range(T):
+            if SRC_TEXT.vocab.itos[src[i][t]] != '<eos>':
+                src_sent.append(SRC_TEXT.vocab.itos[src[i][t]])
+            else:
+                break
+        break
+    src_txt = " ".join(src_sent)
+    output_txt = " ".join(sent)
+    ref_txt = " ".join(sent_ref)
+    return src_txt, output_txt, ref_txt
+
 
 log_interval = 200
 step = 0
@@ -182,8 +224,18 @@ while step < 100000:
                 # Remove <sos> and <eos>
                 sent_ref = sent_ref[1:-1]
                 scores.append(sentence_bleu([sent_ref], sent))
-            print(' '.join(sent))
             print('Average BLEU: {:.4f}'.format(sum(scores) / len(scores)))
+            src = src.permute(1, 0)  # [B, T]
+            src = src.cpu().detach().numpy()
+            src_txt, output_txt, ref_txt = convert_tensor_to_text(src, output, ref)
+
+            print(f'source: {src_txt}')
+            print(f'output: {output_txt}')
+            print(f'reference: {ref_txt}')
+
             torch.save(model.state_dict(), model_output_path)
+            model.to(torch.device('cpu'))
+            torch.save(model.state_dict(), model_output_path)
+            model.to(device)
             model.train()
 

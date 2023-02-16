@@ -24,7 +24,11 @@ python -m spacy download fr_core_news_sm
 ```
 
 # Run the code
-```bash run.sh```
+Use `bash run.sh` to run the code, it would generate the following items in directory `results`.
+- model.cpu.pt : The model which can be loaded with CPU environment.
+- model.pt: The model which can be loaded with GPU or CPU environment, based on if the model is trained with GPU.
+- src.vocab: Source language vocabulary.
+- tgt.vocab: Target language vocabulary.
 
 # Use different models
 Specify the model_type variable to be Transformer or LSTM.
